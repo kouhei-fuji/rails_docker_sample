@@ -98,4 +98,9 @@ Vagrant.configure(2) do |config|
     mkdir -p /data
     chown vagrant:vagrant /data
   SHELL
+
+  config.vm.provision 'shell', run: 'always', inline: <<-SHELL
+    cd /rails_docker_sample/tmp && rm -rf cache/* pids/* sessions/* sockets/*
+    cd /rails_docker_sample && docker-compose up -d && docker-compose run app bin/rake db:create
+  SHELL
 end
