@@ -12,7 +12,8 @@ Vagrant.configure(2) do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "base"
+  config.vm.box = 'centos7'
+  config.vm.box_url = 'https://f0fff3908f081cb6461b407be80daf97f07ac418.googledrive.com/host/0BwtuV7VyVTSkUG1PM3pCeDJ4dVE/centos7.box'
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -27,6 +28,7 @@ Vagrant.configure(2) do |config|
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
   # config.vm.network "private_network", ip: "192.168.33.10"
+  config.vm.network 'private_network', ip: '192.168.10.2'
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -38,6 +40,7 @@ Vagrant.configure(2) do |config|
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
+  config.vm.synced_folder '.', File.join('/', File.basename(File.expand_path('..', __FILE__))), type: 'nfs'
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -53,6 +56,10 @@ Vagrant.configure(2) do |config|
   #
   # View the documentation for the provider you are using for more
   # information on available options.
+  config.vm.provider 'virtualbox' do |vb|
+    vb.memory = 1024
+    vb.cpus   = 1
+  end
 
   # Define a Vagrant Push strategy for pushing to Atlas. Other push strategies
   # such as FTP and Heroku are also available. See the documentation at
@@ -68,4 +75,27 @@ Vagrant.configure(2) do |config|
   #   sudo apt-get update
   #   sudo apt-get install -y apache2
   # SHELL
+  config.vm.provision 'shell', inline: <<-SHELL
+    yum -y update
+    # Timezone to Japan
+    timedatectl set-timezone Asia/Tokyo
+    # Disable selinux
+    sed -i -e 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+    setenforce 0
+    # Disable firewalld
+    systemctl stop firewalld
+    systemctl disable firewalld
+    # Install docker latest version from https://docs.docker.com/installation/centos/
+    curl -L https://get.docker.com/ | /bin/sh
+    usermod -aG docker vagrant
+    # Install docker-compose latest version from https://docs.docker.com/compose/install/ & https://github.com/docker/compose/releases
+    curl -L https://github.com/docker/compose/releases/download/1.4.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+    chmod +x /usr/local/bin/docker-compose
+    # Start docker
+    systemctl start docker
+    systemctl enable docker
+    # Data directory
+    mkdir -p /data
+    chown vagrant:vagrant /data
+  SHELL
 end
