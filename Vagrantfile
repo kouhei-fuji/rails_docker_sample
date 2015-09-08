@@ -89,8 +89,8 @@ Vagrant.configure(2) do |config|
     curl -L https://get.docker.com/ | /bin/sh
     usermod -aG docker vagrant
     # Install docker-compose latest version from https://docs.docker.com/compose/install/ & https://github.com/docker/compose/releases
-    curl -L https://github.com/docker/compose/releases/download/1.4.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
-    chmod +x /usr/local/bin/docker-compose
+    curl -L https://github.com/docker/compose/releases/download/1.4.0/docker-compose-`uname -s`-`uname -m` > /usr/bin/docker-compose
+    chmod +x /usr/bin/docker-compose
     # Start docker
     systemctl start docker
     systemctl enable docker
