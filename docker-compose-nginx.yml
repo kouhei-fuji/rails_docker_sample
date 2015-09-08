@@ -1,0 +1,34 @@
+---
+datastore:
+  extends:
+    file: docker-compose.yml
+    service: datastore
+
+nginx:
+  image: nginx:latest
+  command: /usr/sbin/nginx -c /rails_docker_sample/config/nginx.conf -g "daemon off;"
+  links:
+    - 'app:app'
+  ports:
+    - '80:80'
+  volumes_from:
+    - datastore
+
+mysql:
+  image: mysql:latest
+  ports:
+    - '3306:3306'
+  volumes_from:
+    - datastore
+  environment:
+    MYSQL_ALLOW_EMPTY_PASSWORD: yes
+
+app:
+  build: .
+  command: bundle exec unicorn_rails -c config/unicorn.rb -E development
+  links:
+    - 'mysql:mysql'
+  volumes_from:
+    - datastore
+  environment:
+    RAILS_ENV: development
