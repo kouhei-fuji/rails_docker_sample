@@ -1,0 +1,21 @@
+# OSX
+.DS_Store
+
+# Vagrant
+.vagrant
+Vagrantfile
+
+# Docker
+Dockerfile
+docker-compose*.yml
+
+# Rails
+.bundle
+.git
+.gitignore
+log/*
+tmp/cache/*
+tmp/pids/*
+tmp/sessions/*
+tmp/sockets/*
+vendor/bundle
